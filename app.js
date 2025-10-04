@@ -9,9 +9,11 @@ import ExpressError from "./utils/ExpressError.js";
 import Joi from "joi";
 import session from "express-session";
 import flash from "connect-flash";
-
 import campgrounds from "./routes/campgrounds.js";
 import reviews from "./routes/reviews.js";
+import passport from "passport";
+import LocalStrategy from "passport-local";
+import User from "./models/user.js";
 
 const app = express();
 mongoose.connect("mongodb://127.0.0.1:27017/yelp-camp");
@@ -51,6 +53,12 @@ app.use((req, res, next) => {
 
 app.use("/campgrounds", campgrounds);
 app.use("/campgrounds/:id/reviews", reviews);
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.get("/", (req, res) => {
   res.render("home");

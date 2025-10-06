@@ -1,6 +1,7 @@
 import { Router } from "express";
 import User from "../models/user.js";
 import passport from "passport";
+import { storeReturnTo } from "../middleware.js";
 
 const router = Router();
 
@@ -32,13 +33,16 @@ router.get("/login", (req, res) => {
 
 router.post(
   "/login",
+  storeReturnTo,
   passport.authenticate("local", {
     failureFlash: true,
     failureRedirect: "/login",
   }),
   async (req, res) => {
     req.flash("success", "Welcome back!");
-    res.redirect("/campgrounds");
+    const redirectUrl = res.locals.returnTo || "/campgrounds";
+    delete req.session.returnTo;
+    res.redirect(redirectUrl);
   }
 );
 

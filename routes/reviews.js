@@ -1,23 +1,15 @@
 import { Router } from "express";
-import { reviewSchema } from "../schemas.js";
 import Campground from "../models/campground.js";
 import Review from "../models/review.js";
+import { isLoggedIn, validateReview, isReviewAuthor } from "../middleware.js";
+
 const router = Router({ mergeParams: true });
 
-const validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body);
-  if (error) {
-    const msg = error.details.map((element) => element.message).join(",");
-    throw new ExpressError(msg, 400);
-  } else {
-    next();
-  }
-};
-
-router.post("/", validateReview, async (req, res) => {
+router.post("/", isLoggedIn, validateReview, async (req, res) => {
   const id = req.params.id;
   const campground = await Campground.findById(id);
   const review = new Review(req.body.review);
+  review.author = req.user._id;
   campground.reviews.push(review);
   await review.save();
   await campground.save();
@@ -25,7 +17,7 @@ router.post("/", validateReview, async (req, res) => {
   res.redirect(`/campgrounds/${id}`);
 });
 
-router.delete("/:reviewId", async (req, res) => {
+router.delete("/:reviewId", isLoggedIn, isReviewAuthor, async (req, res) => {
   try {
     const { id, reviewId } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, {

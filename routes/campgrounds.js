@@ -31,7 +31,13 @@ router
 router
   .route("/:id")
   .get(showCampground)
-  .put(isLoggedIn, isAuthor, validateCampground, updateCampground)
+  .put(
+    isLoggedIn,
+    isAuthor,
+    upload.array("campground[image]"),
+    validateCampground,
+    updateCampground
+  )
   .delete(isLoggedIn, isAuthor, deleteCampground);
 
 router.get(

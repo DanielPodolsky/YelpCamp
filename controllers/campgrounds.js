@@ -1,4 +1,5 @@
 import Campground from "../models/campground.js";
+import { cloudinary } from "../cloudinary/index.js";
 
 export const index = async (req, res, next) => {
   try {
@@ -68,11 +69,36 @@ export const renderEditForm = async (req, res, next) => {
 export const updateCampground = async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(req.body);
+    const images = req.files.map((f) => ({
+      url: f.path,
+      filename: f.filename,
+    }));
     const updatedCampground = await Campground.findByIdAndUpdate(
       id,
       req.body.campground,
       { new: true }
     );
+    updatedCampground.images.push(...images);
+
+    if (req.body.deleteImages) {
+      // Remove from MongoDB
+      await updatedCampground.updateOne({
+        $pull: {
+          images: {
+            filename: {
+              $in: req.body.deleteImages,
+            },
+          },
+        },
+      });
+
+      // Remove from Cloudinary
+      for (let filename of req.body.deleteImages) {
+        await cloudinary.uploader.destroy(filename);
+      }
+    }
+    await updatedCampground.save();
     req.flash("success", "Succesfully updated campground!");
     res.redirect(`/campgrounds/${updatedCampground._id}`);
   } catch (err) {

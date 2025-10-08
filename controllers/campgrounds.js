@@ -15,12 +15,14 @@ export const renderNewForm = (req, res, next) => {
 
 export const createCampground = async (req, res, next) => {
   try {
-    // if (!req.body.campground) {
-    //   throw new ExpressError("Invalid Campground Data", 400);
-    // }
     const newCampground = new Campground({ ...req.body.campground });
     newCampground.author = req.user._id;
+    newCampground.images = req.files.map((f) => ({
+      url: f.path,
+      filename: f.filename,
+    }));
     await newCampground.save();
+    console.log(newCampground);
     req.flash("success", "Succesfully made a new campground!");
     res.redirect(`/campgrounds/${newCampground._id}`);
   } catch (err) {

@@ -10,15 +10,23 @@ import {
   updateCampground,
   deleteCampground,
 } from "../controllers/campgrounds.js";
+import multer from "multer";
+import { cloudinary, storage } from "../cloudinary/index.js";
 
 const router = Router();
+const upload = multer({ storage });
 
 router.get("/new", isLoggedIn, renderNewForm);
 
 router
   .route("/")
   .get(index)
-  .post(isLoggedIn, validateCampground, createCampground);
+  .post(
+    isLoggedIn,
+    upload.array("campground[image]"),
+    validateCampground,
+    createCampground
+  );
 
 router
   .route("/:id")

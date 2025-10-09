@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Campground from "../models/campground.js";
 import { descriptors, places } from "./seedHelpers.js";
 import cities from "./cities.js";
+import { coordinates } from "@maptiler/client";
 
 // The main purpose of the seeding is to first clear all the database so there wont be anything in there.
 // Then, we will send information to our database.
@@ -35,6 +36,13 @@ const seedDB = async () => {
           filename: "YelpCamp/ssfcftcol9vtipmrpajp",
         },
       ],
+      geometry: {
+        type: "Point",
+        coordinates: [
+          cities[random1000].longitude,
+          cities[random1000].latitude,
+        ],
+      },
       description:
         "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Accusantium necessitatibus quaerat et quas dicta? At temporibus hic nulla voluptatibus nostrum quasi corporis, autem a accusantium, impedit quisquam voluptatum eius provident.",
       price: price,

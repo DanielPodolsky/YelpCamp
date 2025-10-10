@@ -289,13 +289,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is part of "The Web Developer Bootcamp 2025" course and is intended for educational purposes.
 
-## 👤 Author
-
-**Your Name**
-
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-
 ## 🙏 Acknowledgments
 
 - This project was built as part of [The Web Developer Bootcamp 2025](https://www.udemy.com/course/the-web-developer-bootcamp/) by Colt Steele
@@ -324,5 +317,3 @@ _Add screenshots of your application here_
 ![New Campground](screenshots/new.png)
 
 ---
-
-**Note**: Remember to never commit your `.env` file to version control. Always use `.env.example` as a template.

@@ -6,12 +6,28 @@ maptilerClient.config.apiKey = process.env.MAPTILER_API_KEY;
 
 export const index = async (req, res, next) => {
   try {
-    const campgrounds = await Campground.find({});
+    // Pagination settings
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    // Get total count
+    const totalCampgrounds = await Campground.countDocuments();
+    const totalPages = Math.ceil(totalCampgrounds / limit);
+
+    // Get paginated campgrounds
+    const campgrounds = await Campground.find({})
+      .skip(skip)
+      .limit(limit)
+      .sort({ _id: -1 });
+
+    // Get all campgrounds for map
+    const allCampgrounds = await Campground.find({});
 
     // Create GeoJSON for the cluster map
     const campgroundsGeoJSON = {
       type: "FeatureCollection",
-      features: campgrounds.map((campground) => ({
+      features: allCampgrounds.map((campground) => ({
         type: "Feature",
         geometry: campground.geometry,
         properties: {
@@ -29,7 +45,26 @@ export const index = async (req, res, next) => {
       })),
     };
 
-    res.render("campgrounds/index", { campgrounds, campgroundsGeoJSON });
+    // Calculate pagination display logic
+    let startPage = Math.max(1, page - 2);
+    let endPage = Math.min(totalPages, page + 2);
+
+    if (page <= 3) {
+      endPage = Math.min(5, totalPages);
+    }
+    if (page > totalPages - 3) {
+      startPage = Math.max(1, totalPages - 4);
+    }
+
+    res.render("campgrounds/index", {
+      campgrounds,
+      campgroundsGeoJSON,
+      currentPage: page,
+      totalPages,
+      totalCampgrounds,
+      startPage,
+      endPage,
+    });
   } catch (err) {
     next(err);
   }
